@@ -1,5 +1,5 @@
 // app/(tabs)/profile.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import * as Notifications from "expo-notifications";          
 import { useAuthStore } from "../../store/authStore";
 import { useCourseStore } from "../../store/courseStore";
 import { apiClient } from "../../lib/api";
@@ -19,11 +20,77 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
+// ✅ Notification handler (app foreground માં હોય ત્યારે પણ show કરે)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuthStore();
   const { bookmarks, enrolledCourses } = useCourseStore();
   const [isUploading, setIsUploading] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState(false);  
   const router = useRouter();
+
+  // ✅ App open થાય ત્યારે permission check + bookmark notification
+  useEffect(() => {
+    checkNotificationPermission();
+    checkBookmarkMilestone();
+  }, [bookmarks.length]);
+
+  // ✅ Permission check
+  const checkNotificationPermission = async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    setNotifEnabled(status === "granted");
+  };
+
+  // ✅ Permission request
+  const requestNotificationPermission = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    setNotifEnabled(status === "granted");
+    if (status === "granted") {
+      Alert.alert("✅ Notifications ON", "Tame notification enable karya!");
+    } else {
+      Alert.alert("Permission Denied", "Settings mathi notification enable karo.");
+    }
+  };
+
+  // ✅ Bookmarks 5+ થાય ત્યારે notification
+  const checkBookmarkMilestone = async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== "granted") return;
+
+    if (bookmarks.length >= 5) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🔖 Bookmarks Milestone!",
+          body: `Wah! Tamara ${bookmarks.length} courses bookmark thaya che. Enroll karo haju!`,
+          data: { screen: "bookmarks" },
+        },
+        trigger: null, // ✅ Immediately show
+      });
+    }
+  };
+
+  // ✅ Manual test notification
+  const sendTestNotification = async () => {
+    if (!notifEnabled) {
+      await requestNotificationPermission();
+      return;
+    }
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "📚 LMS Notification",
+        body: "Aaje nava courses explore karo!",
+        data: {},
+      },
+      trigger: null,
+    });
+  };
 
   const stats = [
     { label: "Enrolled",   value: enrolledCourses.length, icon: "book-outline" as const,             colors: ["#7c3aed", "#a78bfa"] as const },
@@ -136,7 +203,6 @@ export default function ProfileScreen() {
             className="relative"
             activeOpacity={0.8}
           >
-            {/* Gradient ring around avatar */}
             <LinearGradient
               colors={["#a78bfa", "#7c3aed", "#c084fc"]}
               start={{ x: 0, y: 0 }}
@@ -144,10 +210,7 @@ export default function ProfileScreen() {
               style={{ padding: 3, borderRadius: 9999 }}
             >
               {avatarUrl ? (
-                <Image
-                  source={{ uri: avatarUrl }}
-                  className="w-24 h-24 rounded-full bg-[#1a1625]"
-                />
+                <Image source={{ uri: avatarUrl }} className="w-24 h-24 rounded-full bg-[#1a1625]" />
               ) : (
                 <View className="w-24 h-24 rounded-full bg-[#1a1625] items-center justify-center">
                   <Text className="text-violet-300 text-3xl font-bold">
@@ -156,19 +219,11 @@ export default function ProfileScreen() {
                 </View>
               )}
             </LinearGradient>
-
-            {/* Edit badge */}
             <LinearGradient
               colors={["#7c3aed", "#a855f7"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                borderRadius: 9999,
-                padding: 7,
-              }}
+              style={{ position: "absolute", bottom: 0, right: 0, borderRadius: 9999, padding: 7 }}
             >
               {isUploading ? (
                 <ActivityIndicator size="small" color="white" />
@@ -180,8 +235,6 @@ export default function ProfileScreen() {
 
           <Text className="text-white text-xl font-bold mt-3">{user?.username}</Text>
           <Text className="text-gray-500 text-sm mt-0.5">{user?.email}</Text>
-
-          {/* Role badge */}
           <LinearGradient
             colors={["#7c3aed", "#a855f7"]}
             start={{ x: 0, y: 0 }}
@@ -217,6 +270,47 @@ export default function ProfileScreen() {
                 </View>
               </View>
             ))}
+          </View>
+
+          {/* ✅ Notifications Card */}
+          <View className="bg-[#1a1625] rounded-2xl border border-[#2e2640] overflow-hidden">
+            <View className="px-4 py-3 border-b border-[#2e2640]">
+              <Text className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
+                Notifications
+              </Text>
+            </View>
+
+            {/* Status Row */}
+            <View className="flex-row justify-between items-center px-4 py-3 border-b border-[#2e2640]">
+              <View className="flex-row items-center" style={{ gap: 8 }}>
+                <Ionicons name="notifications-outline" size={16} color="#7c3aed" />
+                <Text className="text-gray-500 text-sm">Status</Text>
+              </View>
+              <View className={`px-3 py-1 rounded-full ${notifEnabled ? "bg-green-500/20" : "bg-red-500/20"}`}>
+                <Text className={`text-xs font-semibold ${notifEnabled ? "text-green-400" : "text-red-400"}`}>
+                  {notifEnabled ? "Enabled" : "Disabled"}
+                </Text>
+              </View>
+            </View>
+
+            {/* Enable / Test Button */}
+            <TouchableOpacity
+              onPress={notifEnabled ? sendTestNotification : requestNotificationPermission}
+              activeOpacity={0.7}
+              className="flex-row justify-between items-center px-4 py-3"
+            >
+              <View className="flex-row items-center" style={{ gap: 8 }}>
+                <Ionicons
+                  name={notifEnabled ? "paper-plane-outline" : "lock-open-outline"}
+                  size={16}
+                  color="#7c3aed"
+                />
+                <Text className="text-gray-500 text-sm">
+                  {notifEnabled ? "Send Test Notification" : "Enable Notifications"}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#4b4063" />
+            </TouchableOpacity>
           </View>
 
           {/* Account section */}
