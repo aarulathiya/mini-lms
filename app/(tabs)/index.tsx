@@ -35,11 +35,20 @@ export default function CoursesScreen() {
   } = useCourseStore();
 
   const { isConnected } = useNetwork();
-  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const searchTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     fetchCourses(1);
   }, [fetchCourses]);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeout.current !== null) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, []);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoading && hasMore && isConnected) {
@@ -49,10 +58,13 @@ export default function CoursesScreen() {
 
   const handleSearch = useCallback(
     (text: string) => {
-      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+      if (searchTimeout.current !== null) {
+        clearTimeout(searchTimeout.current);
+      }
       searchTimeout.current = setTimeout(() => {
         setSearchQuery(text);
-      }, 300);
+        searchTimeout.current = null;
+      }, 300) as unknown as number;
     },
     [setSearchQuery]
   );
@@ -69,7 +81,6 @@ export default function CoursesScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#0d0b14]">
 
-      {/* ── Header: Book icon + LMS gradient + bell ── */}
       <View className="px-5 pt-4 pb-3 flex-row items-center justify-between">
         <View className="flex-row items-center" style={{ gap: 10 }}>
           <LinearGradient
@@ -140,7 +151,7 @@ export default function CoursesScreen() {
         <ErrorView message={error} onRetry={() => fetchCourses(1)} />
       )}
 
-      {/* ── First load spinner ── */}
+      {/* ── List ── */}
       {isLoading && filteredCourses.length === 0 ? (
         <View className="flex-1 items-center justify-center" style={{ gap: 12 }}>
           <ActivityIndicator size="large" color="#a78bfa" />
@@ -176,22 +187,15 @@ export default function CoursesScreen() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: 20,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 4,
-                    borderWidth: 1,
-                    borderColor: "#2e2640",
+                    width: 72, height: 72, borderRadius: 20,
+                    alignItems: "center", justifyContent: "center",
+                    marginBottom: 4, borderWidth: 1, borderColor: "#2e2640",
                   }}
                 >
                   <Ionicons name="book-outline" size={32} color="#a78bfa" />
                 </LinearGradient>
-
                 <Text className="text-white font-semibold text-lg">No courses found</Text>
                 <Text className="text-gray-500 text-sm">Try a different search term</Text>
-
                 {searchQuery ? (
                   <TouchableOpacity
                     onPress={() => setSearchQuery("")}

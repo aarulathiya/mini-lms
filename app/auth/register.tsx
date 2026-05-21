@@ -70,7 +70,6 @@ export default function RegisterScreen() {
           {/* Header */}
           <View className="mb-10">
 
-            {/* LMS Title + Book Icon row */}
             <View className="flex-row items-center" style={{ gap: 12 }}>
               <MaskedView
                 maskElement={
@@ -101,7 +100,6 @@ export default function RegisterScreen() {
               </LinearGradient>
             </View>
 
-            {/* Gradient "Create account" */}
             <MaskedView
               maskElement={
                 <Text className="text-2xl font-bold mt-3">Create account</Text>

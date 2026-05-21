@@ -3,10 +3,18 @@ import { create } from "zustand";
 import { apiClient } from "../lib/api";
 import { appStorage } from "../lib/storage";
 import { scheduleBookmarkMilestoneNotification } from "../lib/notifications";
-import { Course, RandomProduct, RandomUser } from "../types/index";
-import { API_ENDPOINTS } from "../constants/index";
+import { Course, RandomProduct, RandomUser } from "../types";
+import { API_ENDPOINTS } from "../constants";
 
 const BOOKMARK_MILESTONE = 5;
+
+function getInstructorFullName(
+  name: string | { first: string; last: string; title?: string } | undefined
+): string {
+  if (!name) return "";
+  if (typeof name === "string") return name;
+  return `${name.first ?? ""} ${name.last ?? ""}`.trim();
+}
 
 interface CourseStore {
   courses: Course[];
@@ -35,6 +43,12 @@ function mapToCourse(
   bookmarks: string[],
   enrolled: string[]
 ): Course {
+  const rawName = instructor?.name as
+    | string
+    | { first: string; last: string; title?: string }
+    | undefined;
+  const instructorName = getInstructorFullName(rawName) || "Unknown Instructor";
+
   return {
     id: String(product.id),
     title: product.title,
@@ -45,7 +59,7 @@ function mapToCourse(
     category: product.category,
     instructor: {
       id: String(instructor?.id ?? 0),
-      name: instructor?.name ?? "Unknown Instructor",
+      name: instructorName,
       email: instructor?.email ?? "",
       avatar: instructor?.profileImage ?? "",
       gender: instructor?.gender ?? "male",
@@ -118,7 +132,6 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
       ),
     }));
 
-    // Check milestone
     if (bookmarks.length >= BOOKMARK_MILESTONE && isBookmarked) {
       await scheduleBookmarkMilestoneNotification();
     }

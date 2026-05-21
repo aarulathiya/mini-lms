@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.janki-1111.minilms",
-       "infoPlist": {
+      "infoPlist": {
         "NSCameraUsageDescription": "Profile photo leva mate camera joie che.",
         "NSPhotoLibraryUsageDescription": "Gallery ma thi photo select karva joie che.",
         "NSPhotoLibraryAddUsageDescription": "Photo save karva mate joie che."
@@ -40,6 +40,13 @@
       "expo-router",
       "expo-secure-store",
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8731f08d-9fcb-4848-a582-8a4ebc5184c1"
+      }
+    },
+    "owner": "archi_lathiya"
   }
 }

@@ -71,7 +71,6 @@ export default function CourseDetailScreen() {
     <SafeAreaView className="flex-1 bg-[#0d0b14]">
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── Thumbnail ── */}
         <View className="relative">
           <Image
             source={{ uri: "https://asset.gecdesigns.com/img/wallpapers/make-money-motivation-iphone-wallpaper-with-gold-dollar-symbol-and-luxury-wealth-theme-sr13042604-mockup-one.webp" }}
@@ -79,13 +78,11 @@ export default function CourseDetailScreen() {
             style={{ backgroundColor: "#0d0b14", height: 324 }}
             resizeMode="cover"
           />
-          {/* dark overlay */}
           <View
             className="absolute inset-0"
             style={{ backgroundColor: "rgba(13,11,20,0.35)" }}
           />
 
-          {/* Back button */}
           <TouchableOpacity
             onPress={() => router.back()}
             className="absolute top-4 left-4 rounded-full p-2"
@@ -94,7 +91,6 @@ export default function CourseDetailScreen() {
             <Ionicons name="arrow-back" size={22} color="white" />
           </TouchableOpacity>
 
-          {/* Bookmark button */}
           <TouchableOpacity
             onPress={handleBookmark}
             className="absolute top-4 right-4 rounded-full p-2"
@@ -108,10 +104,8 @@ export default function CourseDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Content ── */}
         <View className="px-5 py-5" style={{ gap: 16 }}>
 
-          {/* Category + Rating */}
           <View className="flex-row items-center justify-between">
             <LinearGradient
               colors={["#3b1f6e", "#2e1a5c"]}
@@ -130,10 +124,8 @@ export default function CourseDetailScreen() {
             </View>
           </View>
 
-          {/* Title */}
           <Text className="text-white text-2xl font-bold">{course.title}</Text>
 
-          {/* Instructor card */}
           <View
             className="bg-[#1a1625] rounded-2xl border border-[#2e2640] p-4 flex-row items-center"
             style={{ gap: 14 }}
@@ -159,12 +151,10 @@ export default function CourseDetailScreen() {
             </View>
           </View>
 
-          {/* Description */}
           <Text className="text-gray-400 text-base leading-relaxed">
             {course.description}
           </Text>
 
-          {/* Price card */}
           <View className="bg-[#1a1625] rounded-2xl border border-[#2e2640] p-4">
             <Text className="text-gray-500 text-sm mb-1">Course Price</Text>
             <Text style={{ fontSize: 32, fontWeight: "800", color: "#a78bfa", marginTop: -2 }}>
@@ -172,7 +162,6 @@ export default function CourseDetailScreen() {
             </Text>
           </View>
 
-          {/* Enroll button */}
           {course.isEnrolled ? (
             <TouchableOpacity
               onPress={handleEnroll}

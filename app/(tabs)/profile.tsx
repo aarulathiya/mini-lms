@@ -20,7 +20,6 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-// ✅ Notification handler (app foreground માં હોય ત્યારે પણ show કરે)
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -190,12 +189,10 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1 bg-[#0d0b14]">
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── Top Header ── */}
         <View className="px-5 pt-4 pb-3">
           <Text className="text-2xl font-bold text-violet-200">Profile</Text>
         </View>
 
-        {/* ── Avatar Section ── */}
         <View className="items-center py-6">
           <TouchableOpacity
             onPress={handleAvatarUpdate}
@@ -245,10 +242,8 @@ export default function ProfileScreen() {
           </LinearGradient>
         </View>
 
-        {/* ── Body ── */}
         <View className="px-4 pt-2 pb-10" style={{ gap: 14 }}>
 
-          {/* Stats 2x2 */}
           <View className="flex-row flex-wrap" style={{ gap: 10 }}>
             {stats.map(({ label, value, icon, colors }) => (
               <View
@@ -272,7 +267,6 @@ export default function ProfileScreen() {
             ))}
           </View>
 
-          {/* ✅ Notifications Card */}
           <View className="bg-[#1a1625] rounded-2xl border border-[#2e2640] overflow-hidden">
             <View className="px-4 py-3 border-b border-[#2e2640]">
               <Text className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
@@ -293,7 +287,6 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            {/* Enable / Test Button */}
             <TouchableOpacity
               onPress={notifEnabled ? sendTestNotification : requestNotificationPermission}
               activeOpacity={0.7}
@@ -313,7 +306,6 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Account section */}
           <View className="bg-[#1a1625] rounded-2xl border border-[#2e2640] overflow-hidden">
             <View className="px-4 py-3 border-b border-[#2e2640]">
               <Text className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
@@ -346,7 +338,6 @@ export default function ProfileScreen() {
             ))}
           </View>
 
-          {/* Logout */}
           <TouchableOpacity
             onPress={handleLogout}
             activeOpacity={0.8}
