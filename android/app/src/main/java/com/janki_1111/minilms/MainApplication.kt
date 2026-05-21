@@ -1,4 +1,4 @@
-package com.janki_1111.minilms
+package com.minilms.app
 
 import android.app.Application
 import android.content.res.Configuration

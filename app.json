@@ -29,7 +29,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.janki_1111.minilms"
+      "package": "com.minilms.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"

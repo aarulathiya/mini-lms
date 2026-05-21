@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.janki_1111.minilms'
+    namespace 'com.minilms.app'
     defaultConfig {
-        applicationId 'com.janki_1111.minilms'
+        applicationId 'com.minilms.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
