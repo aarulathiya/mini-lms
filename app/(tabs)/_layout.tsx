@@ -1,7 +1,14 @@
-// app/(tabs)/_layout.tsx
+
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants/index";
+
+// App ની exact dark purple theme
+const THEME = {
+  tabBarBg: "#12102A",          
+  borderColor: "rgba(108, 63, 200, 0.25)", 
+  activeColor: "#7C5CDB",       
+  inactiveColor: "#5A5475",
+};
 
 export default function TabsLayout() {
   return (
@@ -9,15 +16,20 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#1E293B",
-          borderTopColor: "#334155",
+          backgroundColor: THEME.tabBarBg,
+          borderTopColor: THEME.borderColor,
           borderTopWidth: 1,
-          paddingBottom: 4,
-          height: 60,
+          paddingBottom: 8,
+          paddingTop: 4,
+          height: 80,
         },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+        tabBarActiveTintColor: THEME.activeColor,
+        tabBarInactiveTintColor: THEME.inactiveColor,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 2,
+        },
       }}
     >
       <Tabs.Screen

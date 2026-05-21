@@ -74,8 +74,9 @@ export default function CourseDetailScreen() {
         {/* ── Thumbnail ── */}
         <View className="relative">
           <Image
-            source={{ uri: course.thumbnail }}
+            source={{ uri: "https://asset.gecdesigns.com/img/wallpapers/make-money-motivation-iphone-wallpaper-with-gold-dollar-symbol-and-luxury-wealth-theme-sr13042604-mockup-one.webp" }}
             className="w-full h-56 bg-[#1a1625]"
+            style={{ backgroundColor: "#0d0b14", height: 324 }}
             resizeMode="cover"
           />
           {/* dark overlay */}
