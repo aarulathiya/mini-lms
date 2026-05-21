@@ -16,6 +16,8 @@ import { useCourseStore } from "../../store/courseStore";
 import { apiClient } from "../../lib/api";
 import { API_ENDPOINTS } from "../../constants/index";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuthStore();
@@ -24,24 +26,40 @@ export default function ProfileScreen() {
   const router = useRouter();
 
   const stats = [
-    { label: "Enrolled", value: enrolledCourses.length, icon: "📚" },
-    { label: "Bookmarks", value: bookmarks.length, icon: "🔖" },
-    { label: "Completed", value: 0, icon: "✅" },
+    { label: "Enrolled",   value: enrolledCourses.length, icon: "book-outline" as const,             colors: ["#7c3aed", "#a78bfa"] as const },
+    { label: "Bookmarks",  value: bookmarks.length,        icon: "bookmark-outline" as const,         colors: ["#6d28d9", "#c084fc"] as const },
+    { label: "Completed",  value: 0,                       icon: "checkmark-circle-outline" as const, colors: ["#5b21b6", "#a78bfa"] as const },
+    { label: "Avg Rating", value: "4.5",                   icon: "star-outline" as const,             colors: ["#7c3aed", "#e9d5ff"] as const },
   ];
 
   const handleAvatarUpdate = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission Required", "Camera roll permission is needed to update your avatar.");
-      return;
+    Alert.alert("Change Profile Photo", "", [
+      { text: "Take Photo", onPress: () => pickImage("camera") },
+      { text: "Choose from Gallery", onPress: () => pickImage("gallery") },
+      { text: "Remove Photo", style: "destructive", onPress: handleRemoveAvatar },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
+  const pickImage = async (source: "camera" | "gallery") => {
+    if (source === "camera") {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Required", "Camera access aapvo jaruri che.");
+        return;
+      }
+    } else {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Required", "Gallery access aapvo jaruri che.");
+        return;
+      }
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    const result =
+      source === "camera"
+        ? await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 })
+        : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [1, 1], quality: 0.8 });
 
     if (!result.canceled && result.assets[0]) {
       setIsUploading(true);
@@ -53,18 +71,36 @@ export default function ProfileScreen() {
           type: asset.mimeType ?? "image/jpeg",
           name: "avatar.jpg",
         } as unknown as Blob);
-
         const response = await apiClient.patch(API_ENDPOINTS.UPDATE_AVATAR, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         updateUser(response.data.data);
-        Alert.alert("Success", "Profile picture updated!");
+        Alert.alert("Success", "Profile picture update thay gayu!");
       } catch {
-        Alert.alert("Error", "Failed to update avatar. Please try again.");
+        Alert.alert("Error", "Avatar update nai thayo.");
       } finally {
         setIsUploading(false);
       }
     }
+  };
+
+  const handleRemoveAvatar = async () => {
+    Alert.alert("Remove Photo", "Profile photo remove karvu che?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const response = await apiClient.delete(API_ENDPOINTS.UPDATE_AVATAR);
+            updateUser(response.data.data);
+            Alert.alert("Done", "Profile photo remove thay gayu.");
+          } catch {
+            Alert.alert("Error", "Remove nai thayo, try karo.");
+          }
+        },
+      },
+    ]);
   };
 
   const handleLogout = () => {
@@ -84,14 +120,15 @@ export default function ProfileScreen() {
   const avatarUrl = user?.avatar?.url;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900">
+    <SafeAreaView className="flex-1 bg-[#0d0b14]">
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
+
+        {/* ── Top Header ── */}
         <View className="px-5 pt-4 pb-3">
-          <Text className="text-2xl font-bold text-white">Profile</Text>
+          <Text className="text-2xl font-bold text-violet-200">Profile</Text>
         </View>
 
-        {/* Avatar + info */}
+        {/* ── Avatar Section ── */}
         <View className="items-center py-6">
           <TouchableOpacity
             onPress={handleAvatarUpdate}
@@ -99,75 +136,134 @@ export default function ProfileScreen() {
             className="relative"
             activeOpacity={0.8}
           >
-            {avatarUrl ? (
-              <Image
-                source={{ uri: avatarUrl }}
-                className="w-24 h-24 rounded-full bg-slate-700"
-              />
-            ) : (
-              <View className="w-24 h-24 rounded-full bg-indigo-600 items-center justify-center">
-                <Text className="text-white text-3xl font-bold">
-                  {user?.username?.[0]?.toUpperCase() ?? "U"}
-                </Text>
-              </View>
-            )}
-            <View className="absolute bottom-0 right-0 bg-indigo-500 rounded-full p-2">
+            {/* Gradient ring around avatar */}
+            <LinearGradient
+              colors={["#a78bfa", "#7c3aed", "#c084fc"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: 3, borderRadius: 9999 }}
+            >
+              {avatarUrl ? (
+                <Image
+                  source={{ uri: avatarUrl }}
+                  className="w-24 h-24 rounded-full bg-[#1a1625]"
+                />
+              ) : (
+                <View className="w-24 h-24 rounded-full bg-[#1a1625] items-center justify-center">
+                  <Text className="text-violet-300 text-3xl font-bold">
+                    {user?.username?.[0]?.toUpperCase() ?? "U"}
+                  </Text>
+                </View>
+              )}
+            </LinearGradient>
+
+            {/* Edit badge */}
+            <LinearGradient
+              colors={["#7c3aed", "#a855f7"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                borderRadius: 9999,
+                padding: 7,
+              }}
+            >
               {isUploading ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (
-                <Text className="text-white text-xs">✏️</Text>
+                <Ionicons name="pencil" size={13} color="white" />
               )}
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
 
           <Text className="text-white text-xl font-bold mt-3">{user?.username}</Text>
-          <Text className="text-slate-400 text-sm">{user?.email}</Text>
-          <View className="bg-indigo-500/20 rounded-full px-3 py-1 mt-2">
-            <Text className="text-indigo-300 text-xs font-medium capitalize">{user?.role}</Text>
+          <Text className="text-gray-500 text-sm mt-0.5">{user?.email}</Text>
+
+          {/* Role badge */}
+          <LinearGradient
+            colors={["#7c3aed", "#a855f7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 4, marginTop: 8 }}
+          >
+            <Text className="text-white text-xs font-semibold capitalize">{user?.role}</Text>
+          </LinearGradient>
+        </View>
+
+        {/* ── Body ── */}
+        <View className="px-4 pt-2 pb-10" style={{ gap: 14 }}>
+
+          {/* Stats 2x2 */}
+          <View className="flex-row flex-wrap" style={{ gap: 10 }}>
+            {stats.map(({ label, value, icon, colors }) => (
+              <View
+                key={label}
+                className="bg-[#1a1625] rounded-2xl border border-[#2e2640] p-4 flex-row items-center"
+                style={{ width: "48%", gap: 12 }}
+              >
+                <LinearGradient
+                  colors={colors}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" }}
+                >
+                  <Ionicons name={icon} size={18} color="#ffffff" />
+                </LinearGradient>
+                <View>
+                  <Text className="text-white text-lg font-semibold">{value}</Text>
+                  <Text className="text-gray-500 text-xs">{label}</Text>
+                </View>
+              </View>
+            ))}
           </View>
-        </View>
 
-        {/* Stats */}
-        <View className="flex-row mx-5 gap-3 mb-6">
-          {stats.map(({ label, value, icon }) => (
-            <View key={label} className="flex-1 bg-slate-800 rounded-2xl p-4 items-center border border-slate-700">
-              <Text className="text-2xl mb-1">{icon}</Text>
-              <Text className="text-white text-xl font-bold">{value}</Text>
-              <Text className="text-slate-400 text-xs">{label}</Text>
+          {/* Account section */}
+          <View className="bg-[#1a1625] rounded-2xl border border-[#2e2640] overflow-hidden">
+            <View className="px-4 py-3 border-b border-[#2e2640]">
+              <Text className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
+                Account
+              </Text>
             </View>
-          ))}
-        </View>
+            {[
+              { label: "Username",     value: user?.username,  icon: "person-outline" as const },
+              { label: "Email",        value: user?.email,     icon: "mail-outline" as const },
+              {
+                label: "Member Since",
+                value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—",
+                icon: "calendar-outline" as const,
+              },
+            ].map(({ label, value, icon }, i, arr) => (
+              <View
+                key={label}
+                className={`flex-row justify-between items-center px-4 py-3 ${
+                  i < arr.length - 1 ? "border-b border-[#2e2640]" : ""
+                }`}
+              >
+                <View className="flex-row items-center" style={{ gap: 8 }}>
+                  <Ionicons name={icon} size={16} color="#7c3aed" />
+                  <Text className="text-gray-500 text-sm">{label}</Text>
+                </View>
+                <Text className="text-violet-200 text-sm font-medium" numberOfLines={1}>
+                  {value}
+                </Text>
+              </View>
+            ))}
+          </View>
 
-        {/* Account section */}
-        <View className="mx-5 bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden mb-4">
-          <Text className="text-slate-400 text-xs font-semibold uppercase px-4 py-3 border-b border-slate-700">
-            Account
-          </Text>
-          {[
-            { label: "Username", value: user?.username },
-            { label: "Email", value: user?.email },
-            {
-              label: "Member Since",
-              value: user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString()
-                : "—",
-            },
-          ].map(({ label, value }) => (
-            <View key={label} className="flex-row justify-between items-center px-4 py-3 border-b border-slate-700/50">
-              <Text className="text-slate-400 text-sm">{label}</Text>
-              <Text className="text-white text-sm font-medium">{value}</Text>
-            </View>
-          ))}
-        </View>
+          {/* Logout */}
+          <TouchableOpacity
+            onPress={handleLogout}
+            activeOpacity={0.8}
+            className="bg-red-500/10 border border-red-500/20 rounded-2xl py-4 flex-row items-center justify-center"
+            style={{ gap: 8 }}
+          >
+            <Ionicons name="log-out-outline" size={18} color="#f87171" />
+            <Text className="text-red-400 font-semibold">Log Out</Text>
+          </TouchableOpacity>
 
-        {/* Logout */}
-        <TouchableOpacity
-          onPress={handleLogout}
-          className="mx-5 bg-red-500/10 border border-red-500/30 rounded-2xl py-4 items-center mb-8"
-          activeOpacity={0.8}
-        >
-          <Text className="text-red-400 font-semibold">Log Out</Text>
-        </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

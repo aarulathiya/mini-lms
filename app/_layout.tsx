@@ -1,6 +1,7 @@
 // app/_layout.tsx
 import "../global.css"
 import { useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -18,10 +19,8 @@ export default function RootLayout() {
     const init = async () => {
       await loadStoredAuth();
 
-      // Request notification permissions
       const granted = await requestNotificationPermissions();
       if (granted) {
-        // Check last opened for reminder
         const lastOpened = await appStorage.getLastOpened();
         if (lastOpened) {
           const hoursSince =
@@ -38,7 +37,13 @@ export default function RootLayout() {
     init();
   }, []);
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: "#0d0b14", justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#a78bfa" />
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -19,7 +19,7 @@ export default function BookmarksScreen() {
   const keyExtractor = useCallback((item: Course) => item.id, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900">
+    <SafeAreaView className="flex-1 bg-[#0d0b14]">
       <View className="px-5 pt-4 pb-3">
         <Text className="text-2xl font-bold text-white">Bookmarks</Text>
         <Text className="text-slate-400 text-sm mt-1">

@@ -44,6 +44,11 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Profile photo khenchva mate camera ni jarur che.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Gallery ma thi profile photo choose karva ni jarur che.</string>
+
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

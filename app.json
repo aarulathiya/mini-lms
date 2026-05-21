@@ -14,7 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.janki-1111.minilms"
+      "bundleIdentifier": "com.janki-1111.minilms",
+       "infoPlist": {
+        "NSCameraUsageDescription": "Profile photo leva mate camera joie che.",
+        "NSPhotoLibraryUsageDescription": "Gallery ma thi photo select karva joie che.",
+        "NSPhotoLibraryAddUsageDescription": "Photo save karva mate joie che."
+      }
     },
     "android": {
       "adaptiveIcon": {
